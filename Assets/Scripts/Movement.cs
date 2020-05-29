@@ -10,6 +10,7 @@ public class Movement : MonoBehaviour
     [HideInInspector]
     public Rigidbody2D rb;
     private AnimationScript anim;
+    private SoundManagerScript sound;
 
     [Space]
     [Header("Stats")]
@@ -47,6 +48,7 @@ public class Movement : MonoBehaviour
         coll = GetComponent<Collision>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<AnimationScript>();
+        sound = GetComponentInChildren<SoundManagerScript>();
     }
 
     // Update is called once per frame
@@ -96,6 +98,7 @@ public class Movement : MonoBehaviour
             rb.gravityScale = 3;
         }
 
+        // Wall slide
         if(coll.onWall && !coll.onGround)
         {
             if (x != 0 && !wallGrab)
@@ -107,7 +110,7 @@ public class Movement : MonoBehaviour
 
         if (!coll.onWall || coll.onGround)
             wallSlide = false;
-
+        // Jump
         if (Input.GetButtonDown("Jump"))
         {
             anim.SetTrigger("jump");
@@ -117,13 +120,13 @@ public class Movement : MonoBehaviour
             if (coll.onWall && !coll.onGround)
                 WallJump();
         }
-
+        // Dash
         if (Input.GetButtonDown("Fire1") && !hasDashed)
         {
             if(xRaw != 0 || yRaw != 0)
                 Dash(xRaw, yRaw);
         }
-
+        // Land 
         if (coll.onGround && !groundTouch)
         {
             GroundTouch();
@@ -188,6 +191,7 @@ public class Movement : MonoBehaviour
         DOVirtual.Float(14, 0, .8f, RigidbodyDrag);
 
         dashParticle.Play();
+        sound.PlaySound("dash");
         rb.gravityScale = 0;
         GetComponent<BetterJumping>().enabled = false;
         wallJumped = true;
@@ -243,6 +247,7 @@ public class Movement : MonoBehaviour
         float push = pushingWall ? 0 : rb.velocity.x;
 
         rb.velocity = new Vector2(push, -slideSpeed);
+        sound.PlaySound("slid");
     }
 
     private void Walk(Vector2 dir)
@@ -261,6 +266,7 @@ public class Movement : MonoBehaviour
         {
             rb.velocity = Vector2.Lerp(rb.velocity, (new Vector2(dir.x * speed, rb.velocity.y)), wallJumpLerp * Time.deltaTime);
         }
+        sound.PlaySound("walk");
     }
 
     private void Jump(Vector2 dir, bool wall)
@@ -272,6 +278,7 @@ public class Movement : MonoBehaviour
         rb.velocity += dir * jumpForce;
 
         particle.Play();
+        sound.PlaySound("jump");
     }
 
     IEnumerator DisableMovement(float time)

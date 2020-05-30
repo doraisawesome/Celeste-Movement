@@ -165,6 +165,7 @@ public class Movement : MonoBehaviour
         side = anim.sr.flipX ? -1 : 1;
 
         jumpParticle.Play();
+        sound.PlaySound("land");
     }
 
     private void Dash(float x, float y)
@@ -247,7 +248,7 @@ public class Movement : MonoBehaviour
         float push = pushingWall ? 0 : rb.velocity.x;
 
         rb.velocity = new Vector2(push, -slideSpeed);
-        sound.PlaySound("slid");
+        sound.PlaySound("slide");
     }
 
     private void Walk(Vector2 dir)

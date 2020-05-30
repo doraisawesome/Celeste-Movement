@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class SoundManagerScript : MonoBehaviour
 {
-    public AudioClip walk, jump, dash, slid, land;
+    [SerializeField]
+    private AudioClip[] footsteps;
+    public AudioClip jump, dash, slide, land;
     private AudioSource source;
+    private string lastPlayedClip;
+    private Movement move;
     // Start is called before the first frame update
     void Start()
     {
         source = GetComponent<AudioSource>();
+        move = GetComponentInParent<Movement>();
     }
 
     // Update is called once per frame
@@ -19,28 +24,43 @@ public class SoundManagerScript : MonoBehaviour
     }
     
     public void PlaySound (string clip) {
+        // Make sure sliding sound only play once in one slide event firing and stops when
+        // received other events
+        if (source.isPlaying && move.wallSlide){
+            return;
+        } else if (source.isPlaying && lastPlayedClip == "slide") {
+            source.Stop();
+        } 
         switch (clip) {
-        case "walk":
-            //source.PlayOneShot(walk);
-            print("walking");
-            break;
         case "jump":
-            //source.PlayOneShot(jump);
+            source.PlayOneShot(jump);
             print("jump");
             break;
         case "dash":
-            //source.PlayOneShot(dash);
+            source.PlayOneShot(dash);
             print("dash");
             break;
-        case "slid":
-            //source.PlayOneShot(slid);
+        case "slide":
+            source.PlayOneShot(slide);
             print("slide");
             break;
         case "land":
-            //source.PlayOneShot(land);
+            source.PlayOneShot(land);
             print("Landed");
             break;
-
         }
+        lastPlayedClip = clip;
+    }
+
+    public void Step()
+    {
+        print("one footstep at a time!");
+        AudioClip clip = GetRandomClip();
+        source.PlayOneShot(clip);
+    }
+
+    private AudioClip GetRandomClip()
+    {
+        return footsteps[Random.Range(0, footsteps.Length)];
     }
 }
